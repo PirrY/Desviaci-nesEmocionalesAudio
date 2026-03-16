@@ -1,8 +1,32 @@
-# Detección de Desviaciones Emocionales en Llamadas
+# Detección de Picos Emocionales en Llamadas de Call Center
+### Análisis Paralingüístico y Machine Learning
 
-Sistema de análisis paralingüístico de llamadas telefónicas que separa hablantes,
-establece una línea base de cómo habla cada persona y detecta momentos de activación
-emocional (enojo, excitación, estrés) midiendo desviaciones de esa base.
+**Estudiante:** Daniel Giraldo Valencia
+**Tutor:** Juan David Correa
+**Programa:** Ingeniería de Sistemas
+
+---
+
+## Descripción
+
+Los call centers procesan llamadas donde la evaluación de calidad requiere que supervisores escuchen grabaciones completas para identificar momentos críticos de escalamiento emocional. Este proyecto automatiza ese proceso mediante análisis de características paralingüísticas del habla — tono, ritmo, volumen y calidad vocal — para detectar picos emocionales sin depender del contenido textual.
+
+El sistema establece una línea base emocional personalizada por hablante y detecta desviaciones significativas que indican activación emocional (enojo, excitación, estrés, ansiedad).
+
+---
+
+## Objetivos
+
+**General:** Desarrollar un sistema automatizado de detección de picos emocionales en llamadas de call center basado en análisis de características paralingüísticas del habla.
+
+**Específicos:**
+1. Implementar pipeline de extracción de características acústicas (F0, intensidad, jitter/shimmer, MFCCs, HNR)
+2. Evaluar métodos de cálculo de líneas base acústicas individualizadas
+3. Implementar y comparar algoritmos de detección de anomalías (Z-scores, Isolation Forest, One-Class SVM)
+4. Construir clasificador de valencia emocional (alta activación vs. baja activación)
+5. Validar el sistema con llamadas reales y anotaciones de expertos
+
+**Métricas objetivo:** Precision ≥75% · Recall ≥70% · F1 ≥72% · Clasificación de valencia ≥65%
 
 ---
 
@@ -10,13 +34,36 @@ emocional (enojo, excitación, estrés) midiendo desviaciones de esa base.
 
 ```
 .
-├── preprocessing.ipynb          # Paso 1 — Limpieza y normalización del audio
-├── emotional_baseline.ipynb     # Paso 2 — Diarización, baseline y detección
-├── experiments.ipynb            # Validación con audio sintético (sin dependencias externas)
-├── output_preprocessing/        # Audio limpio + diagnósticos
-├── output_emotional/            # Resultados del análisis emocional
-└── output_experiments/          # Resultados del experimento controlado
+├── preprocessing.ipynb           # Paso 1 — Limpieza y normalización del audio
+├── emotional_baseline.ipynb      # Paso 2 — Diarización, baseline y detección
+├── paralinguistic_features.ipynb # Extracción y análisis de features acústicas
+├── experiments.ipynb             # Validación con audio sintético (sin dependencias externas)
+├── dataset/                      # Dataset RAVDESS + llamadas simuladas de call center
+│   ├── raw/                      # Archivos RAVDESS originales (no versionados)
+│   ├── simulated_calls/          # Llamadas continuas generadas para validación
+│   ├── annotations/              # Ground truth: timestamps y distribución de emociones
+│   ├── scripts/                  # Scripts de descarga y construcción de llamadas
+│   └── README.md                 # Documentación del dataset y metodología de simulación
+├── output_preprocessing/         # Audio limpio + diagnósticos
+├── output_emotional/             # Resultados del análisis emocional
+└── output_experiments/           # Resultados del experimento controlado
 ```
+
+---
+
+## Dataset
+
+Se utiliza **RAVDESS** (Ryerson Audio-Visual Database of Emotional Speech and Audio) — corpus actuado por 24 actores profesionales que graban enunciados en 8 categorías emocionales. Es el benchmark estándar para reconocimiento de emociones en voz.
+
+Para simular llamadas de call center, se toman grabaciones de **un único actor** (mismo hablante, frases idénticas, distintas emociones) y se concatenan en una grabación continua con una distribución de emociones conocida. Esto permite validación controlada con ground truth exacto.
+
+```bash
+# Descargar dataset
+pip install kagglehub
+python dataset/scripts/download_ravdess.py
+```
+
+Ver [`dataset/README.md`](dataset/README.md) para la metodología completa de simulación y la distribución de emociones.
 
 ---
 
@@ -32,15 +79,14 @@ Audio de llamada (.wav / .mp3 / .m4a)
           │  llamada_clean.wav
           ▼
 ┌──────────────────────────┐
-│  emotional_baseline.ipynb │   Separa hablantes y detecta eventos emocionales
+│  emotional_baseline.ipynb │   Separa hablantes y detecta picos emocionales
 └──────────────────────────┘
           │
           ▼
-   Eventos detectados + arco emocional + CSVs
+   Picos detectados + arco emocional + CSVs con timestamps
 ```
 
-Para validar el sistema sin audio real, usa `experiments.ipynb` que genera
-su propio audio sintético con eventos inyectados y mide precision/recall.
+Para validar el sistema sin audio real, `experiments.ipynb` genera audio sintético con picos inyectados en posiciones conocidas y mide precision/recall.
 
 ---
 
@@ -48,8 +94,7 @@ su propio audio sintético con eventos inyectados y mide precision/recall.
 
 ### `preprocessing.ipynb` — Preprocesamiento de audio
 
-Prepara el audio para maximizar la calidad de las estimaciones posteriores.
-Aplica un pipeline de 7 pasos en este orden:
+Pipeline de 8 pasos para maximizar la calidad de las estimaciones posteriores:
 
 | Paso | Técnica | Problema que resuelve |
 |------|---------|----------------------|
@@ -58,136 +103,80 @@ Aplica un pipeline de 7 pasos en este orden:
 | 3 | Reparación de clipping | Saturación del A/D que genera armónicos falsos en jitter y shimmer |
 | 4 | Reducción de ruido (spectral gating) | Ruido de fondo que desestabiliza el pitch y eleva el jitter artificialmente |
 | 5 | Filtro bandpass 300–3400 Hz | Elimina zumbidos (< 300 Hz) y ruido de alta frecuencia (> 3400 Hz) |
-| 6 | Pre-énfasis (α = 0.97) | Compensa la caída natural de ~6 dB/oct de la voz, mejora estimación de pitch |
-| 7 | Normalización de loudness (LUFS) | Iguala el volumen percibido entre hablantes para que la energía refleje cambios dinámicos, no niveles absolutos |
-| 8 | VAD (detección de actividad vocal) | Recorta silencios > 0.5 s para no contaminar la línea base con frames vacíos |
+| 6 | Pre-énfasis (α = 0.97) | Compensa la caída natural de ~6 dB/oct de la voz |
+| 7 | Normalización de loudness (LUFS) | Iguala el volumen percibido entre hablantes |
+| 8 | VAD (detección de actividad vocal) | Recorta silencios > 0.5 s para no contaminar la línea base |
 
-**Salidas:**
-- `output_preprocessing/llamada_clean.wav` — audio procesado, timeline original preservado (usar con diarización)
-- `output_preprocessing/llamada_clean_vad.wav` — ídem pero con silencios recortados (usar para extracción de features)
-- `output_preprocessing/preprocessing_metadata.json` — parámetros usados
-- Gráficos de diagnóstico: `diag_raw.png`, `diag_clean.png`, `before_after.png`, `pitch_comparison.png`
+**Salidas:** `llamada_clean.wav`, `llamada_clean_vad.wav`, `preprocessing_metadata.json`, gráficos de diagnóstico.
 
-**Parámetros ajustables en la celda de configuración:**
-
+**Parámetros ajustables:**
 ```python
-BP_LOW              = 300      # Hz — corte inferior del bandpass
-BP_HIGH             = 3400     # Hz — corte superior (8000 Hz para audio HD)
-PREEMPH_COEF        = 0.97     # coeficiente de pre-énfasis (0.90–0.99)
-TARGET_LUFS         = -16.0    # loudness objetivo (−23 LUFS = broadcast)
-NOISE_REDUCTION_PROP = 1.0     # agresividad de la reducción de ruido (1.0 = conservador)
-VAD_MIN_SILENCE_S   = 0.5      # silencios más cortos que esto se conservan
+BP_LOW               = 300     # Hz — corte inferior del bandpass
+BP_HIGH              = 3400    # Hz — corte superior (8000 Hz para audio HD)
+PREEMPH_COEF         = 0.97    # coeficiente de pre-énfasis (0.90–0.99)
+TARGET_LUFS          = -16.0   # loudness objetivo (−23 LUFS = broadcast)
+NOISE_REDUCTION_PROP = 1.0     # agresividad de reducción de ruido
+VAD_MIN_SILENCE_S    = 0.5     # silencios más cortos que esto se conservan
 ```
 
 ---
 
-### `emotional_baseline.ipynb` — Análisis emocional
-
-Dado el audio limpio (salida del paso anterior), detecta momentos de activación emocional.
+### `emotional_baseline.ipynb` — Detección de picos emocionales
 
 #### Diarización de hablantes
-
-Usa **pyannote/speaker-diarization-3.1** para identificar quién habla en cada momento.
-Fijamos `num_speakers=2` ya que las llamadas son entre dos personas.
-
-> Requiere: cuenta en HuggingFace + aceptar los términos del modelo en su página
+Usa **pyannote/speaker-diarization-3.1** para separar asesor y cliente. Requiere cuenta en HuggingFace y aceptar los términos del modelo.
 
 #### Features paralingüísticas
 
-Para cada ventana de análisis de 5 s (hop 1 s) se calculan:
+Para cada ventana de 5 s (hop 1 s):
 
-| Feature | Librería | Qué mide |
-|---------|---------|----------|
-| `pitch_mean` / `pitch_std` | librosa (pyin) | Tono fundamental y su variación — sube en emociones de alta activación |
-| `energy_db` | librosa | Volumen en dB — más energía = más intensidad emocional |
-| `speech_rate` | librosa (onset) | Sílabas por segundo — habla más rápida en excitación/nerviosismo |
-| `jitter` | Praat (parselmouth) | Variación ciclo a ciclo del pitch — voz tensa tiene más jitter |
-| `hnr` | Praat (parselmouth) | Relación armónicos/ruido — baja bajo estrés (voz más ruidosa) |
+| Feature | Librería | Implicación emocional |
+|---------|---------|----------------------|
+| `pitch_mean` / `pitch_std` | librosa (pyin) | Sube con alta activación (ira, miedo, excitación) |
+| `energy_db` | librosa | Aumenta con activación emocional y estrés |
+| `speech_rate` | librosa (onset) | Se acelera con ansiedad, ralentiza con tristeza |
+| `jitter` | parselmouth (Praat) | Aumenta con tensión emocional y física |
+| `hnr` | parselmouth (Praat) | Baja bajo estrés (voz más ruidosa/áspera) |
+| `mfccs` (13) | librosa | Capturan timbre vocal para clasificación holística |
 
-#### Línea base
+#### Métodos de línea base (comparados)
 
-Dos estrategias configurables:
+| Método | Descripción | Cuándo usar |
+|--------|-------------|-------------|
+| `first_n` | Primeros 60 s de habla | Inicio de llamada asumido neutral |
+| `iqr` | Mediana ± 1.5 × IQR de la llamada completa | Cuando el inicio ya es tenso |
+| `sliding` | Ventana deslizante adaptativa | Llamadas largas con cambios de estado prolongados |
 
-- **`first_n`** (default): usa los primeros 60 s de habla de cada persona. Asume inicio neutral.
-- **`iqr`**: usa mediana ± 1.5 × IQR de toda la llamada. Más robusto si el inicio ya es tenso.
+#### Detección de picos
 
-> Para producción, la base ideal es una grabación de referencia de esa persona en contexto neutro.
-
-#### Score de desviación
-
-Para cada ventana y cada feature:
-
+Score de desviación por ventana:
 ```
 z_i(t) = (feature_i(t) − media_base_i) / std_base_i
+S(t)   = Σ w_i × |z_i(t)|
 ```
+Umbral adaptativo por hablante: `media(S) + 2σ`. Umbral configurable via `ALERT_THRESHOLD`.
 
-Score compuesto ponderado:
+#### Clasificación de valencia
 
-```
-S(t) = Σ w_i × |z_i(t)|
-```
-
-Un `S(t)` alto indica que múltiples features se alejaron simultáneamente de la base.
-El umbral de alerta es adaptativo por hablante: `media(S) + 2σ`.
-
-#### Dirección emocional
-
-| `z_pitch + z_energy` | Interpretación |
+| z_pitch + z_energy | Interpretación |
 |---------------------|----------------|
-| Positivo (`> 0`) | Alta activación: enojo, excitación, nerviosismo |
-| Negativo (`< 0`) | Baja activación: tristeza, apatía, calma extrema |
+| Positivo (> 0) | Alta activación: enojo, excitación, nerviosismo |
+| Negativo (< 0) | Baja activación: tristeza, apatía, calma extrema |
 
-**Salidas:**
-- `output_emotional/emotional_arc.png` — arco emocional completo
-- `output_emotional/zscore_heatmap_*.png` — qué feature disparó cada evento
-- `output_emotional/events_detected.csv` — tabla de eventos con inicio, fin, tipo
-- `output_emotional/windows_with_scores.csv` — todas las ventanas con scores
-
-**Parámetros ajustables:**
-
-```python
-WINDOW_S             = 5.0     # duración de cada ventana de análisis (s)
-HOP_S                = 1.0     # paso entre ventanas (s)
-BASELINE_STRATEGY    = 'first_n'
-BASELINE_FIRST_N_S   = 60      # segundos de habla para la base
-ALERT_THRESHOLD      = 2.0     # desviaciones estándar para declarar evento
-FEATURE_WEIGHTS      = {...}   # peso de cada feature en el score compuesto
-```
+Para clasificación más robusta: SVM o Random Forest entrenado sobre z-scores (Fase 4 del proyecto).
 
 ---
 
 ### `experiments.ipynb` — Validación con audio sintético
 
-Notebook autocontenido para validar y ajustar el sistema **sin necesitar audio real**.
-
-#### Qué hace
-
-1. **Genera audio sintético** con dos hablantes con F0 distintos (130 Hz y 210 Hz)
-   usando un modelo de voz simplificado (suma de armónicos + modulación de amplitud)
-2. **Inyecta eventos emocionales** en posiciones y duraciones conocidas (ground truth)
-3. **Corre el pipeline completo** de features + baseline + detección
-4. **Mide el rendimiento** contra el ground truth con IoU, precision, recall y F1
-
-#### Experimentos incluidos
+Notebook autocontenido que genera su propio audio con eventos inyectados en posiciones conocidas y mide el rendimiento del pipeline completo.
 
 | Experimento | Variable | Métrica |
 |------------|---------|---------|
 | Detección básica | — | TP / FP / FN / F1 |
-| Sweep de umbral | `ALERT_THRESHOLD_SD` de 0.8 a 3.5 | Curva Precision-Recall |
-| Duración de base | 10 s / 20 s / 30 s / 45 s / 60 s | F1 por duración |
+| Sweep de umbral | `ALERT_THRESHOLD` 0.8–3.5 | Curva Precision-Recall |
+| Duración de base | 10–60 s | F1 por duración |
 | Distribuciones | — | KDE neutro vs. evento por feature |
-
-#### Eventos inyectados
-
-```
-SPEAKER_A (F0 base ~130 Hz):
-  ~t=40s  → EVENTO_ENOJO_A       (pitch ×1.45, volumen ×1.80, 7s)
-  ~t=48s  → EVENTO_ENOJO_A_cont  (pitch ×1.30, volumen ×1.50, 5s)
-
-SPEAKER_B (F0 base ~210 Hz):
-  ~t=80s  → EVENTO_EXCITACION_B      (pitch ×1.50, volumen ×1.70, 8s)
-  ~t=93s  → EVENTO_EXCITACION_B_cont (pitch ×1.35, volumen ×1.40, 5s)
-```
 
 ---
 
@@ -200,32 +189,30 @@ pip install librosa soundfile pydub praat-parselmouth noisereduce pyloudnorm sci
 # Diarización (requiere aceptar términos en HuggingFace)
 pip install pyannote.audio
 
-# Torch (CPU, sin GPU)
+# Torch (CPU)
 pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
 
+# Dataset
+pip install kagglehub
+
 # Visualización y datos
-pip install matplotlib seaborn pandas numpy
+pip install matplotlib seaborn pandas numpy scikit-learn
 ```
 
 ---
 
 ## Uso rápido
 
-### Con audio real
-
 ```bash
-# 1. Limpiar el audio
-jupyter nbconvert --to notebook --execute preprocessing.ipynb \
-  --ExecutePreprocessor.timeout=600
-
-# 2. Análisis emocional (editar AUDIO_PATH y HF_TOKEN antes)
+# Con audio real — editar AUDIO_PATH y HF_TOKEN en los notebooks primero
+jupyter nbconvert --to notebook --execute preprocessing.ipynb --ExecutePreprocessor.timeout=600
 jupyter nbconvert --to notebook --execute emotional_baseline.ipynb
-```
 
-### Validación sin audio real
-
-```bash
+# Validación sin audio real
 jupyter nbconvert --to notebook --execute experiments.ipynb
+
+# Construir llamada simulada desde RAVDESS
+python dataset/scripts/build_simulated_call.py --actor 01 --output dataset/simulated_calls/
 ```
 
 ---
@@ -233,17 +220,20 @@ jupyter nbconvert --to notebook --execute experiments.ipynb
 ## Limitaciones conocidas
 
 - **Jitter/Shimmer** son sensibles al ruido de canal telefónico (compresión GSM). Interpretarlos con cautela en audio de baja calidad.
-- **`speech_rate` via onset detection** es una aproximación. Para mayor precisión, integrar ASR (Whisper) y contar palabras/sílabas reales.
-- **La base calculada en la misma llamada** asume que la mayor parte es neutral. Si la persona está en tensión durante toda la llamada, la base queda contaminada. La solución es usar una grabación de referencia externa.
-- **pyannote puede confundir hablantes** en cruces de voz o cuando hablan simultáneamente. El pre-énfasis y la reducción de ruido del paso de preprocesamiento ayudan pero no eliminan el problema.
-- La **dirección emocional** (enojo vs. tristeza) es una heurística basada en pitch + energía. Para clasificación más robusta, entrenar un modelo supervisado con las features como entrada.
+- **`speech_rate` via onset detection** es una aproximación. Para mayor precisión, integrar ASR (Whisper) y contar sílabas reales.
+- **La base calculada en la misma llamada** asume que la mayor parte es neutral. Si la persona está en tensión durante toda la llamada, la base queda contaminada — usar grabación de referencia externa.
+- **pyannote puede confundir hablantes** en cruces de voz o habla simultánea.
+- **RAVDESS es habla actuada** — el rendimiento puede caer en habla espontánea real (dominio shift conocido en la literatura).
 
 ---
 
-## Próximos pasos para producción
+## Hoja de ruta
 
-1. **Base externa**: grabar a cada agente en una sesión neutra conocida y usar esa grabación como referencia permanente.
-2. **Integrar ASR**: transcribir con Whisper y correlacionar eventos acústicos con palabras concretas.
-3. **Clasificador supervisado**: etiquetar manualmente un subconjunto de llamadas y entrenar un SVM o Random Forest sobre los z-scores.
-4. **Cruzar con métricas de negocio**: correlacionar eventos emocionales con resultado de la llamada (conversión, NPS, escalaciones).
-5. **Streaming**: adaptar el pipeline para procesar en tiempo real con ventanas deslizantes sobre el audio en vivo.
+| Fase | Semanas | Objetivo |
+|------|---------|---------|
+| 1 | 1–3 | Pipeline de extracción de features acústicas |
+| 2 | 4–5 | Métodos de baseline emocional + preprocesamiento |
+| 3 | 6–8 | Detector de anomalías (Z-scores + Isolation Forest) |
+| 4 | 9–10 | Clasificador de valencia (SVM / Random Forest) |
+| 5 | 11–13 | Validación con llamadas reales + análisis comparativo |
+| 6 | 14–15 | Documentación final + demo |
