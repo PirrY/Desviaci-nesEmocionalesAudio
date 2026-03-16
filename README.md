@@ -34,19 +34,25 @@ El sistema establece una línea base emocional personalizada por hablante y dete
 
 ```
 .
-├── preprocessing.ipynb           # Paso 1 — Limpieza y normalización del audio
-├── emotional_baseline.ipynb      # Paso 2 — Diarización, baseline y detección
-├── paralinguistic_features.ipynb # Extracción y análisis de features acústicas
-├── experiments.ipynb             # Validación con audio sintético (sin dependencias externas)
-├── dataset/                      # Dataset RAVDESS + llamadas simuladas de call center
-│   ├── raw/                      # Archivos RAVDESS originales (no versionados)
-│   ├── simulated_calls/          # Llamadas continuas generadas para validación
-│   ├── annotations/              # Ground truth: timestamps y distribución de emociones
-│   ├── scripts/                  # Scripts de descarga y construcción de llamadas
-│   └── README.md                 # Documentación del dataset y metodología de simulación
-├── output_preprocessing/         # Audio limpio + diagnósticos
-├── output_emotional/             # Resultados del análisis emocional
-└── output_experiments/           # Resultados del experimento controlado
+├── POC/
+│   └── notebooks/
+│       ├── preprocessing.ipynb           # Paso 1 — Limpieza y normalización del audio
+│       ├── emotional_baseline.ipynb      # Paso 2 — Diarización, baseline y detección
+│       ├── paralinguistic_features.ipynb # Extracción y análisis de features acústicas
+│       └── experiments.ipynb             # Validación con audio sintético
+├── dataset/                              # Dataset RAVDESS + llamadas simuladas
+│   ├── raw/                              # Archivos RAVDESS originales (no versionados)
+│   ├── simulated_calls/                  # Llamadas continuas generadas (no versionadas)
+│   ├── annotations/                      # Ground truth: timestamps y distribución de emociones
+│   ├── scripts/                          # Scripts de descarga y construcción de llamadas
+│   └── README.md
+├── entregables/
+│   ├── entrega1/                         # Entrega1.odt
+│   ├── entrega2/                         # Entrega2.odt · Entrega2.pdf
+│   └── entrega3/                         # Entrega3.odt · Entrega3.pdf
+├── output_preprocessing/                 # Audio limpio + diagnósticos
+├── output_emotional/                     # Resultados del análisis emocional
+└── output_experiments/                   # Resultados del experimento controlado
 ```
 
 ---

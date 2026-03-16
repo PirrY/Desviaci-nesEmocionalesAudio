@@ -19,9 +19,14 @@ ENV/
 
 # ── Jupyter ───────────────────────────────────────────────────────────────────
 .ipynb_checkpoints/
+**/.ipynb_checkpoints/
 *.nbconvert.ipynb
 profile_default/
 ipython_config.py
+
+# ── LibreOffice — archivos de bloqueo temporales ──────────────────────────────
+.~lock.*
+~$*
 
 # ── Dataset — archivos de audio y datos grandes (no versionar) ────────────────
 dataset/raw/
