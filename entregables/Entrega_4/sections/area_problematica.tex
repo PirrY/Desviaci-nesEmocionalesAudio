@@ -1,0 +1,79 @@
+\section{Área Problemática}
+
+\subsection{Definición del Problema Central}
+
+El problema central investigado es la incapacidad de los sistemas actuales de gestión
+de la calidad para detectar automáticamente, en tiempo real, picos emocionales en las
+llamadas de un call center. El proceso estándar exige que un supervisor escuche
+grabaciones completas: una llamada de 90 minutos requiere 90 minutos de análisis, lo
+que limita la cobertura real al 1--5\,\% del total de interacciones \cite{zoom2025}.
+
+\subsection{Contexto e Impacto del Problema}
+
+El sector de call centers está valuado en más de 400 mil millones de dólares, con una
+proyección de 496 mil millones para 2027 \cite{zoom2025}. En Colombia y en América
+Latina, los call centers constituyen uno de los sectores de mayor empleo del sector
+de servicios. El uso de \textit{speech analytics} creció del 28\,\% al 37{,}5\,\%
+entre 2022 y 2023 \cite{zoom2025}, lo que evidencia una demanda creciente de
+automatización que los sistemas actuales no logran satisfacer por completo.
+
+El impacto se manifiesta en tres dimensiones: (a) \textbf{Operacional:} solo el 31\,\%
+de los contact centers mide activamente las emociones del cliente \cite{zoom2025}.
+(b) \textbf{Humana:} el 88\,\% de los profesionales del sector reconoce el burnout de
+los agentes como uno de los mayores desafíos de la industria, con una tasa promedio de
+rotación anual entre el 38\,\% y el 52\,\% \cite{sqm2023, hiringbranch2024}.
+(c) \textbf{Calidad de servicio:} el número de consumidores que abandonan una marca
+tras una sola interacción negativa aumentó en 10 puntos porcentuales entre 2022 y
+2024 \cite{zoom2025}. La Tabla~\ref{tab:impacto} resume los indicadores clave.
+
+\begin{table}[!t]
+\renewcommand{\arraystretch}{1.3}
+\caption{Indicadores de Impacto del Problema}
+\label{tab:impacto}
+\centering
+\begin{tabular}{l p{3.5cm} p{2cm}}
+\toprule
+\textbf{Dimensión} & \textbf{Indicador} & \textbf{Dato} \\
+\midrule
+Operacional & Centros que miden emociones activamente                   & Solo el 31\,\% \cite{zoom2025} \\
+Operacional & Crecimiento uso de \textit{speech analytics} 2022--2023  & 28\,\% $\to$ 37{,}5\,\% \cite{zoom2025} \\
+Humana      & Agentes con alto nivel de burnout (SQM, 2022)            & 63\,\% \cite{sqm2023} \\
+Humana      & Tasa de rotación anual promedio (Deloitte, 2023)         & 38--52\,\% \cite{hiringbranch2024} \\
+Humana      & Agentes que reportan tensión laboral alta (Cornell)      & 87\,\% \cite{hiringbranch2024} \\
+Calidad     & Clientes que abandonan la marca tras 1 interacción negativa & +10 pp (2022--2024) \cite{zoom2025} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Preguntas Clave de Investigación}
+
+\textbf{¿Cuál es el problema que se investigará?} Se investigará cómo detectar
+automáticamente picos emocionales en llamadas de call center mediante el análisis de
+características paralingüísticas de la voz —pitch, intensidad, jitter, shimmer y
+MFCCs— y algoritmos de machine learning, sin depender del contenido textual de la
+conversación.
+
+\textbf{¿A quiénes afecta y en qué medida?} El problema afecta a tres grupos. Los
+agentes de call center son el grupo más directamente perjudicado: el 76\,\% de los
+practicantes del sector reconoce altos niveles de burnout \cite{sqm2023} y el 87\,\%
+de los agentes reporta una alta o muy alta tensión laboral \cite{hiringbranch2024}.
+Los supervisores de calidad están limitados a revisar entre el 1\,\% y el 5\,\% de
+las llamadas. Las organizaciones asumen costos de rotación del 30\,\% al 50\,\% del
+salario anual de un agente por cada reemplazo \cite{sqm2023}.
+
+\textbf{¿Cuáles son las causas que contribuyen al problema?} Las causas se agrupan en
+tres niveles. (a) \textbf{Tecnológico:} los sistemas de análisis de sentimiento
+basados en texto pierden información prosódica y paralingüística esencial
+\cite{feng2023, jha2022}. (b) \textbf{Metodológico:} la ausencia de baselines
+emocionales individualizadas hace que los sistemas con umbrales fijos produzcan tasas
+elevadas de falsos positivos y falsos negativos \cite{gat2022}. (c)
+\textbf{Organizacional:} la cobertura de monitoreo manual es estructuralmente
+insuficiente, pues el tiempo disponible para la revisión es igual al de cada llamada.
+
+\textbf{¿Qué consecuencias tiene no intervenir?} La no intervención perpetúa un ciclo
+de degradación simultáneo: para los agentes, la exposición crónica sin apoyo oportuno
+acelera el burnout y la rotación —en 2023 alcanzó el 52\,\% según Deloitte
+\cite{hiringbranch2024}—. Para las organizaciones, cada punto porcentual de rotación
+no mitigado implica costos directos de contratación y pérdida de conocimiento
+institucional. Para los clientes, la falta de detección impide una intervención
+supervisora oportuna, lo que deteriora la experiencia del usuario \cite{zoom2025}.

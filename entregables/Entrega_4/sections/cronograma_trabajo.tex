@@ -1,0 +1,133 @@
+\section{Cronograma de Trabajo}
+
+\subsection{Fase 1: Configuración y Extracción de Features (Sem.\ 1--3)}
+
+\textbf{Objetivo:} Implementar un pipeline para la extracción de características
+acústicas.
+
+\textbf{Semana 1 — Configuración del entorno técnico:}
+\begin{itemize}
+    \item Instalar Python 3.8+, Librosa, OpenSMILE, pyannote.audio.
+    \item Descargar datasets RAVDESS.
+    \item Crear la estructura del proyecto y el repositorio de Git.
+    \item Probar la extracción básica de audio con Librosa.
+\end{itemize}
+
+\textbf{Semana 2 — Implementación de extracción de features:}
+\begin{itemize}
+    \item Desarrollar una función para extraer la F0 con Librosa.
+    \item Implementar cálculo de intensidad.
+    \item Crear módulo de segmentación temporal.
+\end{itemize}
+
+\textbf{Semana 3 — Features de calidad vocal y espectrales:}
+\begin{itemize}
+    \item Implementar el cálculo de Jitter y Shimmer con Parselmouth.
+    \item Extraer 13 MFCC por segmento.
+    \item Calcular la tasa de habla.
+    \item Desarrollar módulo de visualización.
+\end{itemize}
+
+\subsection{Fase 2: Baseline Emocional y Preprocesamiento (Sem.\ 4--5)}
+
+\textbf{Objetivo:} Evaluar métodos para establecer líneas de base emocionales.
+
+\textbf{Semana 4 — Implementación de métodos de baseline:}
+\begin{itemize}
+    \item Método 1: Baseline de inicio (primeros 2--5 minutos).
+    \item Método 2: Baseline por mediana global.
+    \item Método 3: Baseline adaptativo con ventana deslizante.
+    \item Implementar la normalización de las features con respecto a la baseline.
+\end{itemize}
+
+\textbf{Semana 5 — Preprocesamiento avanzado de audio:}
+\begin{itemize}
+    \item Implementar diarización con pyannote.audio (separar asesor y cliente).
+    \item Desarrollar filtros de ruido y de normalización de volumen.
+    \item Crear un detector de silencios.
+    \item Aplicar el preprocesamiento a un subconjunto del conjunto de datos y
+          validar su calidad.
+\end{itemize}
+
+\subsection{Fase 3: Detección de Picos Emocionales (Sem.\ 6--8)}
+
+\textbf{Objetivo:} Desarrollar algoritmos de detección de anomalías.
+
+\textbf{Semana 6 — Implementación de detector estadístico:}
+\begin{itemize}
+    \item Calcular z-scores de features respecto a baseline.
+    \item Implementar detección por umbral.
+    \item Desarrollar un algoritmo de ventanas deslizantes para la detección temporal.
+\end{itemize}
+
+\textbf{Semana 7 — Implementación de detectores de ML:}
+\begin{itemize}
+    \item Entrenar Isolation Forest para la detección de anomalías multivariadas.
+    \item Implementar One-Class SVM como método alternativo.
+    \item Realizar un grid search para optimizar los hiperparámetros.
+    \item Comparar el rendimiento del método estadístico vs.\ ML.
+\end{itemize}
+
+\textbf{Semana 8 — Integración y caracterización de picos:}
+\begin{itemize}
+    \item Crear un pipeline integrado que combine el baseline y la detección.
+    \item Implementar sistema de etiquetado temporal.
+\end{itemize}
+
+\subsection{Fase 4: Clasificación de Valencia Emocional (Sem.\ 9--10)}
+
+\textbf{Objetivo:} Clasificar los picos según su valencia emocional.
+
+\textbf{Semana 9 — Desarrollo de clasificador de valencia:}
+\begin{itemize}
+    \item Preparar datos etiquetados de RAVDESS/IEMOCAP (positivos/negativos).
+    \item Entrenar un clasificador binario SVM con características de picos detectadas.
+    \item Implementar Random Forest como método alternativo.
+\end{itemize}
+
+\textbf{Semana 10 — Optimización:}
+\begin{itemize}
+    \item Optimizar hiperparámetros mediante grid search.
+    \item Analizar la importancia de las features en la clasificación de la valencia.
+    \item Probar el clasificador en llamadas reales de un call center.
+\end{itemize}
+
+\subsection{Fase 5: Validación y Experimentación (Sem.\ 11--13)}
+
+\textbf{Objetivo:} Validar el sistema mediante llamadas reales y anotaciones de
+expertos.
+
+\textbf{Semana 11 — Validación:}
+\begin{itemize}
+    \item Ejecutar el sistema completo sobre las llamadas anotadas.
+    \item Calcular métricas: Precision, Recall, F1-score, Accuracy.
+    \item Crear la matriz de confusión y analizar las curvas ROC.
+    \item Documentar las discrepancias entre las anotaciones y las detecciones
+          automáticas.
+\end{itemize}
+
+\textbf{Semana 12 — Experimentación comparativa:}
+\begin{itemize}
+    \item Comparar el rendimiento de 3 métodos de baseline.
+    \item Comparar detectores y clasificadores de valencia.
+    \item Generar tablas y gráficos comparativos de los resultados.
+\end{itemize}
+
+\textbf{Semana 13 — Análisis de resultados:}
+\begin{itemize}
+    \item Analizar casos de éxito, falsos positivos y falsos negativos.
+    \item Ajustar umbrales y parámetros con base en el análisis.
+\end{itemize}
+
+\subsection{Fase 6: Interfaz y Documentación Final (Sem.\ 14--15)}
+
+\textbf{Objetivo:} Integrar todos los objetivos en el producto final.
+
+\textbf{Semana 14 — Finalización y documentación:}
+\begin{itemize}
+    \item Optimizar y limpiar el código final.
+    \item Documentar el código con docstrings y comentarios.
+    \item Consolidar el documento final en el formato institucional.
+    \item Verificar referencias IEEE.
+    \item Preparar la presentación y la demo en vivo.
+\end{itemize}

@@ -1,0 +1,131 @@
+\section{Marco Teórico}
+
+\subsection{Análisis Paralingüístico}
+
+El análisis paralingüístico estudia los elementos de la comunicación vocal más allá
+del contenido lingüístico. Específicamente, analiza el tono (altitud de la voz), el
+ritmo (velocidad de habla), el volumen (intensidad sonora) y la calidad vocal
+(características específicas de la voz, como si sonara ronca o clara). Estas
+características transmiten información sobre el estado emocional del hablante,
+independientemente del texto pronunciado. La Tabla~\ref{tab:paralinguistic} resume las
+principales características y sus implicaciones emocionales \cite{jha2022, lian2023}.
+
+\begin{table}[!t]
+\renewcommand{\arraystretch}{1.3}
+\caption{Características Paralingüísticas y sus Implicaciones Emocionales}
+\label{tab:paralinguistic}
+\centering
+\begin{tabular}{p{2cm} p{5.5cm}}
+\toprule
+\textbf{Característica} & \textbf{Implicaciones Emocionales} \\
+\midrule
+Pitch (F0)        & Se eleva con emociones de alta activación; desciende con baja activación. \\
+Intensidad        & Aumenta con activación emocional y estrés comunicativo. \\
+Tasa de habla     & Se acelera con ansiedad; se ralentiza con tristeza o depresión. \\
+Jitter / Shimmer  & Variaciones microtemporales que aumentan con tensión emocional y física. \\
+MFCCs             & Capturan timbre vocal para caracterización holística del estado emocional. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Concepto de Línea Base Emocional}
+
+La alta variabilidad interindividual hace necesario establecer una referencia
+personalizada para cada hablante. El \textit{baseline} emocional individual es el
+estado emocional neutral de esa persona en particular. Los picos se detectan como
+desviaciones significativas respecto a esta \textit{baseline}, no respecto a umbrales
+absolutos, lo que permite adaptarse a las características únicas de cada voz
+\cite{gat2022}.
+
+\subsection{Machine Learning para Detección de Emociones}
+
+\begin{itemize}
+    \item \textbf{Detección estadística:} Z-scores y umbrales de desviación respecto
+          de la línea base emocional.
+    \item \textbf{Métodos clásicos:} Support Vector Machines (SVM), Random Forest y
+          Isolation Forest, algoritmos de aprendizaje automático utilizados para la
+          detección de anomalías multivariadas \cite{wagner2023, xu2023, nath2024}.
+\end{itemize}
+
+\subsection{Revisión de Antecedentes}
+
+\subsubsection{Contexto del Problema en los Call Centers}
+
+Los call centers constituyen entornos de alta carga emocional en los que miles de
+interacciones diarias pueden desembocar en picos críticos de ira, frustración o
+ansiedad. La evaluación manual sigue siendo el estándar dominante, pero conlleva que
+un supervisor dedique tiempo completo a cada grabación. Feng y Devillers (2023)
+evidencian que los modelos entrenados con datos espontáneos de call centers superan
+consistentemente a los entrenados con habla actuada \cite{feng2023}. El análisis
+basado exclusivamente en el texto transcrito resulta insuficiente para capturar
+estados emocionales encubiertos, como el sarcasmo o la frustración sutil, que se
+manifiestan con claridad en características acústicas como la elevación del pitch, la
+aceleración de la tasa de habla o el incremento de las variaciones de jitter y
+shimmer \cite{jha2022, lian2023}.
+
+\subsubsection{Características Acústicas para la Detección de Emociones}
+
+La frecuencia fundamental (F0 o pitch), que mide la frecuencia más baja de la voz,
+es uno de los correlatos acústicos más estudiados: incrementos sostenidos de F0 se
+asocian con emociones de alta activación, como la ira o el miedo, mientras que
+descensos de F0 se correlacionan con la tristeza o la calma \cite{jha2022, lian2023}.
+Las métricas de calidad vocal jitter y shimmer miden las perturbaciones
+microtemporales en la periodicidad del ciclo glótico; jitter se refiere a la
+variabilidad en la frecuencia de la voz, y shimmer a la variabilidad en la amplitud.
+Zhang et al. (2023) demostraron en IEEE que estas características capturan diferencias
+prosódicas significativas bajo una alta carga emocional \cite{zhang2023}. Lian et al.
+(2023) confirman que jitter y shimmer, junto con la razón armónico-ruido (HNR),
+capturan la aspereza y la ronquera asociadas con el habla ansiosa o de alta activación
+emocional \cite{lian2023}. Los MFCC capturan el timbre vocal convirtiendo las señales
+acústicas en una representación numérica de cómo el oído humano percibe el espectro
+de frecuencia, y han sido ampliamente utilizados como entrada para clasificadores de
+emociones \cite{jha2022, abdelhamid2022}. Wagner et al. (2023) demostraron en IEEE
+TPAMI que arquitecturas de transformadores combinadas con eGeMAPS logran cerrar la
+brecha de valencia en el reconocimiento de emociones en habla espontánea
+\cite{wagner2023}.
+
+\subsubsection{Normalización por Hablante y Línea Base Emocional}
+
+La variabilidad interhablante vuelve ineficaces los umbrales absolutos y justifica el
+uso de \textit{baselines} personalizadas. Gat et al. (2022) proponen en ICASSP un
+método de normalización por hablante para sistemas de SER basados en
+autosupervisión, demostrando que la normalización a nivel de hablante mejora
+significativamente el desempeño en habla espontánea \cite{gat2022}. Los tres métodos
+de \textit{baseline} más estudiados son: (1) \textit{baseline} de inicio —primeros
+2--5 minutos de la llamada—; (2) \textit{baseline} por mediana global —más robusta
+ante valores atípicos—; y (3) \textit{baseline} adaptativa con ventana deslizante
+—actualización continua durante la llamada—. La elección entre estos métodos
+constituye uno de los objetivos específicos de esta investigación.
+
+\subsubsection{Algoritmos de Machine Learning para la Detección de Picos}
+
+El enfoque estadístico basado en Z-scores calcula la desviación de cada ventana
+temporal respecto a la línea de base del hablante y marca como pico toda observación
+que supere un umbral de desviación estándar. Xu et al. (2023) proponen Deep Isolation
+Forest en IEEE TKDE, demostrando que extensiones neurales del iForest clásico superan
+a los métodos lineales para la detección de anomalías en espacios de alta dimensión,
+lo cual es directamente aplicable al espacio multivariado de features acústicas
+\cite{xu2023}. Nath et al. (2024) reportan que Random Forest ofrece un equilibrio
+favorable entre la interpretabilidad y la precisión en la clasificación de la valencia
+emocional \cite{nath2024}. Jha et al. (2022) concluyen que la combinación de
+características prosódicas y espectrales es más robusta que cualquiera de ellas por
+separado \cite{jha2022}. Gao et al. (2024) presentan en ICASSP un enfoque de
+fine-tuning en dos etapas con adaptadores para SER, relevante cuando el corpus de
+llamadas reales disponible es limitado \cite{gao2024}.
+
+\subsubsection{Datasets y Validación Experimental}
+
+RAVDESS es un corpus actuado con actores profesionales ampliamente utilizado como
+benchmark. Abdelhamid et al. (2022) reportan en IEEE Access que un CNN+LSTM entrenado
+sobre RAVDESS alcanza precisiones superiores al 85\,\% en condiciones controladas,
+aunque el rendimiento cae al aplicarse a la habla espontánea sin adaptación de dominio
+\cite{abdelhamid2022}. IEMOCAP ofrece conversaciones elicitadas con mayor proximidad
+al habla natural; Wagner et al. (2023) lo usan como benchmark principal para demostrar
+el cierre de la brecha de valencia \cite{wagner2023}. De Lope y Graña (2023) presentan
+en Neurocomputing una revisión continua del estado del arte en SER, señalando que la
+generalización a dominios espontáneos es el reto abierto más relevante \cite{delope2023}.
+Grósz et al. (2022) demuestran en ACM MM que los embeddings de Wav2Vec~2.0 transfieren
+eficazmente a tareas paralingüísticas con datos limitados \cite{grosz2022}. Khare et
+al. (2024) concluyen en Information Fusion que la combinación de características
+acústicas clásicas con representaciones aprendidas es actualmente la estrategia de
+mayor rendimiento en escenarios reales \cite{khare2024}.
