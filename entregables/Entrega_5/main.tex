@@ -1,0 +1,69 @@
+\documentclass[journal,spanish]{IEEEtran}
+
+% ── Codificación y lenguaje ───────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+
+% ── Matemáticas ───────────────────────────────────────────────────────────────
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% ── Tablas ────────────────────────────────────────────────────────────────────
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+
+% ── Figuras ───────────────────────────────────────────────────────────────────
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+
+% ── Diagramas TikZ ────────────────────────────────────────────────────────────
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes.geometric,arrows.meta,fit,calc}
+
+% ── URLs y referencias cruzadas ───────────────────────────────────────────────
+\usepackage{url}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+% ── BibTeX IEEE ───────────────────────────────────────────────────────────────
+\bibliographystyle{IEEEtran}
+
+% ─────────────────────────────────────────────────────────────────────────────
+
+\title{Detección de Picos Emocionales en Llamadas de Call Center
+       mediante Análisis Paralingüístico y Machine Learning}
+
+\author{Daniel~Giraldo~Valencia\\
+        \textit{Programa de Ingeniería de Sistemas}\\
+        Tutor: Juan~David~Correa\\
+        16 de marzo de 2026\\
+        \url{https://github.com/PirrY/Desviaci-nesEmocionalesAudio}}
+
+\begin{document}
+
+\maketitle
+
+% ── Abstract ──────────────────────────────────────────────────────────────────
+\input{sections/abstract}
+
+% ── Cuerpo ────────────────────────────────────────────────────────────────────
+\input{sections/introduccion}
+\input{sections/marco_teorico}
+\input{sections/cronograma_objetivos}
+\input{sections/cronograma_trabajo}
+\input{sections/metodologia}
+\input{sections/resultados_esperados}
+\input{sections/area_problematica}
+\input{sections/justificacion}
+
+% ── Referencias ───────────────────────────────────────────────────────────────
+\bibliography{bibliography/refs}
+
+\end{document}

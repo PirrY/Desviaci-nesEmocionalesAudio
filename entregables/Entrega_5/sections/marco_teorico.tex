@@ -1,0 +1,346 @@
+\section{Referente Teórico}
+\label{sec:referente_teorico}
+
+% ── A. Contextualización del campo ───────────────────────────────────────────
+\subsection{Contextualización del Campo: Reconocimiento Emocional en Voz}
+\label{sec:rt_contexto}
+
+El \textit{Speech Emotion Recognition} (SER) es la disciplina que estudia métodos
+automáticos para inferir el estado emocional de un hablante a partir de la señal de
+voz, sin depender del contenido lingüístico. Sus fundamentos se remontan a los trabajos
+de la década de 1990, cuando se observó que características prosódicas elementales
+como la frecuencia fundamental (F0) y la energía presentaban correlatos sistemáticos
+con estados emocionales \cite{jha2022}.
+
+A lo largo de la primera década del siglo~XXI, el SER adoptó el paradigma de
+aprendizaje automático clásico: se extraían conjuntos de características acústicas
+(\textit{features}) de manera manual y se entrenaban clasificadores como SVM o Random
+Forest sobre dichos vectores \cite{nath2024}. Este enfoque ofrece interpretabilidad:
+es posible identificar qué características acústicas específicas contribuyen a la
+decisión del modelo.
+
+A partir de 2015, la disponibilidad de grandes corpus y de recursos de cómputo
+aceleró el surgimiento de arquitecturas de aprendizaje profundo para SER. En 2023,
+Wagner et al.\ demostraron que los modelos basados en \textit{transformers}
+preentrenados con autosupervisión ---como Wav2Vec~2.0--- logran cerrar la denominada
+\textit{valence gap}: la dificultad histórica para predecir la dimensión positivo/negativo
+de la emoción \cite{wagner2023}. Sin embargo, estos modelos requieren hardware de alto
+rendimiento y grandes corpus anotados, restricciones que no se satisfacen en el contexto
+de un proyecto de grado con hardware estándar y un corpus de llamadas reales limitado.
+
+Por estas razones, el presente proyecto adopta el enfoque \textbf{feature-based
+clásico} combinado con detección de anomalías, estrategia que ofrece un equilibrio
+apropiado entre interpretabilidad, demanda computacional y rendimiento aceptable con
+corpus pequeños \cite{khare2024}.
+
+% ── B. Teorías de las emociones ───────────────────────────────────────────────
+\subsection{Teorías de las Emociones}
+\label{sec:rt_teorias}
+
+\subsubsection{Modelo dimensional de Russell}
+
+Russell (1980) propuso el \textbf{modelo circumplejo del afecto}, que representa las
+emociones en un espacio bidimensional continuo definido por dos ejes ortogonales:
+\textit{valencia} (positiva a negativa) y \textit{activación} (alta a baja)
+\cite{russell1980circumplex}. En este modelo, la ira y el miedo ocupan el cuadrante
+de alta activación / valencia negativa, mientras que la alegría y el entusiasmo se
+sitúan en alta activación / valencia positiva. La tristeza corresponde a baja
+activación / valencia negativa.
+
+Este modelo es el fundamento teórico directo de la presente investigación: el sistema
+detecta \textit{picos de alta activación} (desviaciones acústicas intensas respecto
+al \textit{baseline}) y posteriormente clasifica su \textit{valencia} como positiva
+o negativa, operacionalizando así los dos ejes del circumplejo de Russell.
+
+\subsubsection{Teoría de las emociones básicas de Ekman}
+
+Ekman (1992) postuló la existencia de seis emociones básicas de carácter universal:
+alegría, tristeza, ira, miedo, asco y sorpresa \cite{ekman1992basic}. Aunque este
+modelo categórico ha sido ampliamente utilizado para etiquetar corpus de SER ---incluyendo
+RAVDESS---, su limitación principal en el contexto de este trabajo es que las fronteras
+entre categorías son difusas en el habla espontánea. La clasificación binaria positivo/negativo
+del presente proyecto puede entenderse como una proyección simplificada de las emociones
+básicas sobre el eje de valencia del modelo de Russell.
+
+\subsubsection{Modelo de componentes de Scherer}
+
+Scherer (2005) conceptualiza la emoción como un proceso multi-componente que integra
+al menos cinco dimensiones: la evaluación cognitiva del estímulo, los cambios
+fisiológicos, las tendencias motivacionales, la expresión motora y el sentimiento
+subjetivo \cite{scherer2005what}. La pertinencia de este modelo para el presente
+trabajo radica en el componente de \textbf{expresión motora vocal}: los cambios
+emocionales se manifiestan en la musculatura laríngea, alterando la frecuencia,
+tensión y regularidad de la vibración glótica, lo que se traduce directamente en las
+características acústicas que el sistema extrae.
+
+\subsubsection{Síntesis: por qué el modelo dimensional}
+
+De los tres modelos, el circumplejo de Russell es el más adecuado para este proyecto
+por dos razones: (a)~es continuo, lo que permite cuantificar la \textit{intensidad}
+del pico emocional en términos del nivel de activación; y (b)~la dimensión de valencia
+es directamente operable como etiqueta binaria. Las categorías de Ekman y los
+componentes de Scherer sirven como marco interpretativo para comprender por qué
+ciertas características acústicas correlacionan con los estados emocionales detectados.
+
+% ── C. Producción vocal y paralingüística ─────────────────────────────────────
+\subsection{Producción Vocal y Base Paralingüística}
+\label{sec:rt_produccion}
+
+\subsubsection{Modelo fuente-filtro}
+
+El modelo fuente-filtro de Fant (1960) es el marco físico fundamental para comprender
+la producción de voz \cite{fant1960acoustic}. Según este modelo, la voz resulta de
+dos etapas: (1)~la \textbf{fuente glótica}, que genera una señal periódica cuya
+frecuencia fundamental es F0, determinada por la tensión y masa de los pliegues vocales;
+y (2)~el \textbf{filtro del tracto vocal}, que modifica el espectro de la fuente
+mediante resonancias (formantes) que dependen de la configuración articulatoria.
+
+Este modelo predice directamente por qué las emociones afectan la señal de voz: los
+estados de alta activación emocional incrementan la tensión muscular laríngea (lo
+que eleva F0 y la presión subglótica), provocan irregularidades en la vibración
+glótica (lo que aumenta jitter y shimmer) y modifican la configuración del tracto
+vocal (lo que altera los coeficientes MFCC).
+
+\subsubsection{Relación emoción--fisiología vocal}
+
+La activación emocional activa el sistema nervioso autónomo simpático, lo que produce:
+(a)~incremento de la tensión de los músculos cricotiroideos, elevando F0;
+(b)~aumento de la presión subglótica por mayor actividad diafragmática, elevando la
+intensidad; (c)~mayor irregularidad en la aducción de los pliegues vocales, traducida
+en jitter y shimmer elevados. Estos mecanismos fisiológicos son la justificación
+causal ---no solo correlacional--- de las características acústicas usadas en el sistema
+\cite{jha2022, lian2023}.
+
+% ── D. Características paralingüísticas ──────────────────────────────────────
+\subsection{Características Paralingüísticas}
+\label{sec:rt_paralinguistico}
+
+El análisis paralingüístico estudia los elementos de la comunicación vocal más allá
+del contenido lingüístico. Específicamente, analiza el tono (altitud de la voz), el
+ritmo (velocidad de habla), el volumen (intensidad sonora) y la calidad vocal
+(características específicas de la voz, como si sonara ronca o clara). Estas
+características transmiten información sobre el estado emocional del hablante,
+independientemente del texto pronunciado. La Tabla~\ref{tab:paralinguistic} resume las
+principales características, su base física en el modelo fuente-filtro y sus
+implicaciones emocionales \cite{jha2022, lian2023}.
+
+\begin{table}[!t]
+\renewcommand{\arraystretch}{1.3}
+\caption{Características Paralingüísticas, Fundamento Físico e Implicaciones Emocionales}
+\label{tab:paralinguistic}
+\centering
+\begin{tabular}{p{1.6cm} p{2.0cm} p{3.8cm}}
+\toprule
+\textbf{Característica} & \textbf{Componente} & \textbf{Implicaciones Emocionales} \\
+\midrule
+Pitch (F0)       & Fuente glótica (frecuencia) & Se eleva con emociones de alta activación; desciende con baja activación. \\
+Intensidad       & Fuente glótica (presión)     & Aumenta con activación emocional y estrés comunicativo. \\
+Tasa de habla    & Control motor               & Se acelera con ansiedad; se ralentiza con tristeza. \\
+Jitter/Shimmer   & Fuente (perturbación)        & Aumentan con tensión emocional y física \cite{zhang2023}. \\
+MFCCs            & Filtro del tracto vocal      & Capturan timbre para caracterización holística \cite{jha2022}. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+La frecuencia fundamental (F0), la intensidad, el jitter, el shimmer y la tasa de
+habla constituyen correlatos prosódicos primarios, mientras que los coeficientes
+MFCC aportan información espectral sobre la configuración del tracto vocal. Lian
+et al.\ (2023) confirman que la combinación de features prosódicas y espectrales
+supera en rendimiento al uso de cualquier subconjunto por separado \cite{lian2023}.
+
+% ── E. Línea base emocional ───────────────────────────────────────────────────
+\subsection{Concepto de Línea Base Emocional}
+\label{sec:rt_baseline}
+
+La alta variabilidad interindividual hace necesario establecer una referencia
+personalizada para cada hablante. El \textit{baseline} emocional individual es el
+estado emocional neutral de esa persona en particular. Los picos se detectan como
+desviaciones significativas respecto a esta \textit{baseline}, no respecto a umbrales
+absolutos, lo que permite adaptarse a las características únicas de cada voz
+\cite{gat2022}.
+
+Los tres métodos más estudiados son: (1)~\textit{baseline} de inicio ---primeros
+2--5~minutos de la llamada---; (2)~\textit{baseline} por mediana global ---más robusta
+ante valores atípicos---; y (3)~\textit{baseline} adaptativa con ventana deslizante
+---actualización continua durante la llamada---. La elección entre estos métodos
+constituye una de las variables independientes del diseño experimental (ver
+Sección~\ref{sec:met_diseno}).
+
+La fundamentación teórica de la individualización del \textit{baseline} reside en la
+variabilidad interhablante documentada en la literatura: Gat et al.\ (2022) demuestran
+que la normalización a nivel de hablante mejora significativamente el desempeño de los
+sistemas de SER en habla espontánea, ya que personas con voces naturalmente más agudas
+o más intensas producirían un número excesivo de falsos positivos si se aplicaran
+umbrales absolutos \cite{gat2022}.
+
+% ── F. Modelos computacionales para SER ──────────────────────────────────────
+\subsection{Modelos Computacionales para el Reconocimiento de Emociones en Voz}
+\label{sec:rt_modelos}
+
+\subsubsection{Enfoques feature-based y end-to-end}
+
+En la literatura de SER coexisten dos grandes familias de modelos. Los modelos
+\textbf{feature-based} (o de características artesanales) extraen manualmente un
+vector de características acústicas a partir de la señal de voz y lo pasan a un
+clasificador convencional (SVM, Random Forest, redes neuronales poco profundas).
+Los modelos \textbf{end-to-end} operan directamente sobre la forma de onda o el
+espectrograma usando arquitecturas profundas (CNN, LSTM, \textit{transformers}) que
+aprenden representaciones internas sin intervención manual \cite{khare2024}.
+
+Los modelos end-to-end han logrado mejoras sustanciales en benchmarks controlados,
+pero presentan limitaciones prácticas: (a)~requieren grandes corpus anotados para
+generalizar, (b)~son computacionalmente costosos, y (c)~su interpretabilidad es baja,
+lo que dificulta justificar ante supervisores no técnicos por qué el sistema marcó un
+pico específico \cite{wagner2023, delope2023}.
+
+\subsubsection{Conjuntos de características estándar}
+
+El conjunto \textbf{eGeMAPS} (\textit{Geneva Extended Minimalistic Acoustic Parameter
+Set}), propuesto por Eyben et al.\ (2016), define 88~parámetros acústicos seleccionados
+mediante criterios de relevancia teórica y eficiencia computacional
+\cite{eyben2016gemaps}. Incluye estadísticas de F0, energía, formantes, jitter, shimmer
+y razón armónico-ruido (HNR). Su diseño minimizaba la redundancia y maximizaba la
+cobertura de los correlatos emocionales conocidos, convirtiéndolo en el estándar de
+facto para evaluaciones comparativas en SER.
+
+\subsubsection{Justificación del enfoque adoptado}
+
+Para el presente proyecto se adopta el enfoque \textbf{feature-based} por tres
+razones: (a)~\textit{Interpretabilidad clínica}: el análisis de importancia de
+características (Random Forest) permite identificar qué parámetros acústicos
+específicos marcaron el pico, información útil para el supervisor; (b)~\textit{Restricción
+computacional}: el hardware disponible (Dell Optiplex 9020) no permite entrenar ni
+desplegar modelos de aprendizaje profundo de gran escala; y (c)~\textit{Tamaño del
+corpus}: con un corpus de validación de 30 llamadas, los métodos feature-based ofrecen
+mejor generalización que los end-to-end, que tienden a sobreajustarse con datos
+escasos \cite{khare2024, nath2024}.
+
+% ── G. Machine learning para detección de anomalías ──────────────────────────
+\subsection{Machine Learning para la Detección de Anomalías Emocionales}
+\label{sec:rt_ml}
+
+\begin{itemize}
+    \item \textbf{Detección estadística:} Z-scores y umbrales de desviación respecto
+          de la línea base emocional. Bajo en cómputo, altamente interpretable.
+    \item \textbf{Métodos clásicos:} Support Vector Machines (SVM), Random Forest e
+          Isolation Forest, algoritmos de aprendizaje automático utilizados para la
+          detección de anomalías multivariadas \cite{wagner2023, xu2023, nath2024}.
+          Isolation Forest construye árboles de aislamiento aleatorios y asigna
+          puntuaciones de anomalía basadas en la longitud de la trayectoria de
+          aislamiento \cite{xu2023}.
+\end{itemize}
+
+% ── H. Revisión de antecedentes ───────────────────────────────────────────────
+\subsection{Revisión de Antecedentes}
+\label{sec:rt_antecedentes}
+
+\subsubsection{Contexto del Problema en los Call Centers}
+
+Los call centers constituyen entornos de alta carga emocional en los que miles de
+interacciones diarias pueden desembocar en picos críticos de ira, frustración o
+ansiedad. La evaluación manual sigue siendo el estándar dominante, pero conlleva que
+un supervisor dedique tiempo completo a cada grabación. Feng y Devillers (2023)
+evidencian que los modelos entrenados con datos espontáneos de call centers superan
+consistentemente a los entrenados con habla actuada \cite{feng2023}. El análisis
+basado exclusivamente en el texto transcrito resulta insuficiente para capturar
+estados emocionales encubiertos, como el sarcasmo o la frustración sutil, que se
+manifiestan con claridad en características acústicas como la elevación del pitch, la
+aceleración de la tasa de habla o el incremento de las variaciones de jitter y
+shimmer \cite{jha2022, lian2023}.
+
+\subsubsection{Características Acústicas para la Detección de Emociones}
+
+La frecuencia fundamental (F0 o pitch), que mide la frecuencia más baja de la voz,
+es uno de los correlatos acústicos más estudiados: incrementos sostenidos de F0 se
+asocian con emociones de alta activación, como la ira o el miedo, mientras que
+descensos de F0 se correlacionan con la tristeza o la calma \cite{jha2022, lian2023}.
+Las métricas de calidad vocal jitter y shimmer miden las perturbaciones
+microtemporales en la periodicidad del ciclo glótico; jitter se refiere a la
+variabilidad en la frecuencia de la voz, y shimmer a la variabilidad en la amplitud.
+Zhang et al.\ (2023) demostraron en IEEE que estas características capturan diferencias
+prosódicas significativas bajo una alta carga emocional \cite{zhang2023}. Lian et al.\
+(2023) confirman que jitter y shimmer, junto con la razón armónico-ruido (HNR),
+capturan la aspereza y la ronquera asociadas con el habla ansiosa o de alta activación
+emocional \cite{lian2023}. Los MFCC capturan el timbre vocal convirtiendo las señales
+acústicas en una representación numérica de cómo el oído humano percibe el espectro
+de frecuencia, y han sido ampliamente utilizados como entrada para clasificadores de
+emociones \cite{jha2022, abdelhamid2022}. Wagner et al.\ (2023) demostraron en IEEE
+TPAMI que arquitecturas de transformadores combinadas con eGeMAPS logran cerrar la
+brecha de valencia en el reconocimiento de emociones en habla espontánea
+\cite{wagner2023}.
+
+\subsubsection{Normalización por Hablante y Línea Base Emocional}
+
+La variabilidad interhablante vuelve ineficaces los umbrales absolutos y justifica el
+uso de \textit{baselines} personalizadas. Gat et al.\ (2022) proponen en ICASSP un
+método de normalización por hablante para sistemas de SER basados en
+autosupervisión, demostrando que la normalización a nivel de hablante mejora
+significativamente el desempeño en habla espontánea \cite{gat2022}. Los tres métodos
+de \textit{baseline} más estudiados son: (1)~\textit{baseline} de inicio ---primeros
+2--5~minutos de la llamada---; (2)~\textit{baseline} por mediana global ---más robusta
+ante valores atípicos---; y (3)~\textit{baseline} adaptativa con ventana deslizante
+---actualización continua durante la llamada---. La elección entre estos métodos
+constituye uno de los objetivos específicos de esta investigación.
+
+\subsubsection{Algoritmos de Machine Learning para la Detección de Picos}
+
+El enfoque estadístico basado en Z-scores calcula la desviación de cada ventana
+temporal respecto a la línea de base del hablante y marca como pico toda observación
+que supere un umbral de desviación estándar. Xu et al.\ (2023) proponen Deep Isolation
+Forest en IEEE TKDE, demostrando que extensiones neurales del iForest clásico superan
+a los métodos lineales para la detección de anomalías en espacios de alta dimensión,
+lo cual es directamente aplicable al espacio multivariado de features acústicas
+\cite{xu2023}. Nath et al.\ (2024) reportan que Random Forest ofrece un equilibrio
+favorable entre la interpretabilidad y la precisión en la clasificación de la valencia
+emocional \cite{nath2024}. Jha et al.\ (2022) concluyen que la combinación de
+características prosódicas y espectrales es más robusta que cualquiera de ellas por
+separado \cite{jha2022}. Gao et al.\ (2024) presentan en ICASSP un enfoque de
+fine-tuning en dos etapas con adaptadores para SER, relevante cuando el corpus de
+llamadas reales disponible es limitado \cite{gao2024}.
+
+\subsubsection{Datasets y Validación Experimental}
+
+RAVDESS es un corpus actuado con actores profesionales ampliamente utilizado como
+benchmark. Abdelhamid et al.\ (2022) reportan en IEEE Access que un CNN+LSTM entrenado
+sobre RAVDESS alcanza precisiones superiores al 85\,\% en condiciones controladas,
+aunque el rendimiento cae al aplicarse a la habla espontánea sin adaptación de dominio
+\cite{abdelhamid2022}. IEMOCAP ofrece conversaciones elicitadas con mayor proximidad
+al habla natural; Wagner et al.\ (2023) lo usan como benchmark principal para demostrar
+el cierre de la brecha de valencia \cite{wagner2023}. De Lope y Graña (2023) presentan
+en Neurocomputing una revisión continua del estado del arte en SER, señalando que la
+generalización a dominios espontáneos es el reto abierto más relevante \cite{delope2023}.
+Grósz et al.\ (2022) demuestran en ACM MM que los embeddings de Wav2Vec~2.0 transfieren
+eficazmente a tareas paralingüísticas con datos limitados \cite{grosz2022}. Khare et
+al.\ (2024) concluyen en Information Fusion que la combinación de características
+acústicas clásicas con representaciones aprendidas es actualmente la estrategia de
+mayor rendimiento en escenarios reales \cite{khare2024}.
+
+% ── I. Articulación con la investigación ──────────────────────────────────────
+\subsection{Articulación del Referente Teórico con la Investigación}
+\label{sec:rt_articulacion}
+
+El referente teórico presentado en esta sección estructura de forma directa cada uno
+de los cinco objetivos específicos de la investigación:
+
+\begin{itemize}
+    \item \textbf{Objetivo 1 (extracción de características):} se sustenta en el modelo
+          fuente-filtro de Fant \cite{fant1960acoustic} y en el conjunto eGeMAPS
+          \cite{eyben2016gemaps}, que determinan cuáles parámetros acústicos son
+          teóricamente relevantes como correlatos emocionales.
+    \item \textbf{Objetivo 2 (\textit{baseline} individualizada):} se fundamenta en la
+          variabilidad interhablante documentada por Gat et al.\ \cite{gat2022} y en la
+          necesidad de normalización por hablante derivada del modelo circumplejo de
+          Russell \cite{russell1980circumplex}, que reconoce que el punto de referencia
+          emocional varía entre individuos.
+    \item \textbf{Objetivo 3 (detección de anomalías):} se apoya en la teoría
+          estadística de valores atípicos y en los métodos de detección de anomalías
+          multivariadas revisados en la Sección~\ref{sec:rt_ml} \cite{xu2023, nath2024}.
+    \item \textbf{Objetivo 4 (clasificación de valencia):} se operacionaliza
+          directamente sobre el eje de valencia del modelo dimensional de Russell
+          \cite{russell1980circumplex}, reduciendo el espacio emocional continuo a una
+          clasificación binaria positiva/negativa.
+    \item \textbf{Objetivo 5 (validación con expertos):} se inscribe en el paradigma
+          empírico-positivista del SER en habla espontánea \cite{delope2023, feng2023},
+          que exige la validación de sistemas automáticos contra anotaciones humanas
+          en condiciones ecológicamente válidas.
+\end{itemize}

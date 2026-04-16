@@ -1,0 +1,36 @@
+\section{Resultados Esperados}
+\label{sec:resultados_esperados}
+
+\subsection{Entregables Técnicos}
+
+\begin{itemize}
+    \item \textbf{Sistema funcional de detección:} software completo capaz de procesar
+          llamadas de call center y detectar automáticamente picos emocionales, con
+          código documentado y versionado en el repositorio Git.
+    \item \textbf{Flujo de trabajo reproducible:} código y cuadernos interactivos de
+          Python que permitan replicar todos los experimentos, desde el
+          preprocesamiento de audio hasta la detección final de picos.
+    \item \textbf{Módulos independientes:} extracción de características acústicas,
+          cálculo de la baseline emocional, detector de anomalías, clasificador de
+          valencia y sistema de visualización.
+\end{itemize}
+
+\subsection{Métricas de Desempeño Esperadas}
+
+\textbf{Precisión en la detección $\geq 75$\,\%:} este valor es alcanzable porque se
+centra en picos emocionales extremos, con señales acústicas muy marcadas. Proyectos
+similares en detección de estrés y escalamiento emocional reportan precisiones del
+70--80\,\% cuando se limitan a eventos intensos \cite{abdelhamid2022, wagner2023}.
+
+\textbf{Recall en la detección $\geq 70$\,\%:} el uso de múltiples características
+acústicas permite detectar picos incluso cuando una característica individual no es
+pronunciada. El baseline personalizado por hablante mejora la sensibilidad en
+comparación con umbrales fijos \cite{jha2022, gat2022}.
+
+\textbf{F1-Score $\geq 72$\,\%:} como promedio armónico entre precisión y recall,
+representa un equilibrio adecuado entre evitar falsos positivos (que desperdiciarían
+el tiempo de los supervisores) y capturar la mayoría de los momentos críticos.
+
+\textbf{Clasificación de valencia $\geq 65$\,\%:} la clasificación binaria
+positivo/negativo resulta más desafiante que la detección de picos, ya que las
+emociones de alta activación comparten muchas características acústicas.
