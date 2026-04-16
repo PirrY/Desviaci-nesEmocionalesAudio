@@ -1,0 +1,153 @@
+\section{Introducción}
+\label{sec:introduccion}
+
+% ── A. Planteamiento general del tema ────────────────────────────────────────
+\subsection{Planteamiento General del Tema}
+\label{sec:intro_planteamiento}
+
+La interacción entre las personas y los sistemas de atención al cliente atraviesa una
+transformación sin precedentes. El sector de call centers está valuado en más de
+400~mil millones de dólares, con una proyección de crecimiento a 496~mil millones para
+2027 \cite{zoom2025}. En paralelo, la penetración de la inteligencia artificial
+conversacional en estos entornos se acelera: el uso de \textit{speech analytics}
+creció del 28\,\% al 37{,}5\,\% entre 2022 y 2023, evidenciando una demanda industrial
+sostenida por herramientas de análisis automático de la voz \cite{zoom2025}. Este
+contexto coloca el procesamiento afectivo del habla en el centro de una agenda de
+innovación con impacto económico, operacional y humano real.
+
+Sin embargo, la dimensión humana del problema ha sido subatendida. El 88\,\% de los
+profesionales del sector reconoce el burnout de los agentes como uno de los mayores
+desafíos de la industria, con tasas de rotación anual que oscilan entre el 38\,\% y el
+52\,\% \cite{sqm2023, hiringbranch2024}. La causa estructural es clara: los mecanismos
+de supervisión vigentes son reactivos y de cobertura limitada, incapaces de detectar
+en tiempo oportuno los momentos de escalamiento emocional que preceden al agotamiento
+crónico. El bienestar laboral, entendido como la capacidad de las organizaciones para
+identificar y gestionar la carga emocional de sus agentes, emerge como una prioridad
+que la tecnología tiene la obligación de atender.
+
+En este escenario, la detección automática de picos emocionales en la voz constituye
+un problema técnicamente maduro para ser abordado con métodos de aprendizaje automático
+clásico combinados con análisis paralingüístico. Las características acústicas de la
+voz ---frecuencia fundamental, intensidad, jitter, shimmer y coeficientes espectrales---
+son correlatos fisiológicamente fundamentados de los estados afectivos del hablante;
+y los algoritmos de detección de anomalías, aplicados sobre una línea base emocional
+individualizada, ofrecen un mecanismo interpretable para señalar los momentos críticos
+de cada llamada. Este trabajo explora si esa combinación es viable y con qué nivel de
+rendimiento en el dominio específico del español de Colombia.
+
+% ── B. Contextualización del problema ────────────────────────────────────────
+\subsection{Contextualización del Problema}
+\label{sec:intro_contexto}
+
+Los sistemas actuales de gestión de calidad en call centers dependen de la escucha
+manual por parte del supervisor, lo que limita la cobertura efectiva al 1--5\,\% del
+total de interacciones \cite{zoom2025}; los sistemas de análisis de sentimiento basados
+en texto, por su parte, son insensibles a las señales paralingüísticas que revelan
+estados emocionales encubiertos como la frustración sutil o la ansiedad contenida
+\cite{jha2022, feng2023}. Los detalles del problema, sus causas estructurales y sus
+consecuencias organizacionales y humanas se desarrollan en la sección Área Problemática.
+
+% ── C. Objetivo del estudio ───────────────────────────────────────────────────
+\subsection{Objetivo del Estudio}
+\label{sec:intro_objetivos}
+
+\textbf{Objetivo General:} Desarrollar un sistema automatizado para detectar picos
+emocionales en las llamadas de un call center, basado en el análisis de características
+paralingüísticas del habla.
+
+Para alcanzar este objetivo, se plantean cinco objetivos específicos: (1)~extraer y
+caracterizar las features acústicas más relevantes ---pitch, intensidad, jitter,
+shimmer, MFCCs y tasa de habla--- mediante Librosa, Parselmouth y OpenSMILE/eGeMAPS;
+(2)~evaluar y comparar tres métodos para calcular líneas base acústicas individualizadas
+por hablante (inicio de llamada, mediana global y ventana deslizante adaptativa);
+(3)~comparar cuatro algoritmos de detección de anomalías ---Z-score estadístico,
+Isolation Forest, One-Class SVM y Random Forest--- para identificar picos emocionales
+sobre la línea base calculada; (4)~desarrollar un clasificador binario de valencia
+emocional (positiva / negativa) que opere sobre los segmentos detectados como picos;
+y (5)~validar el sistema completo sobre llamadas reales de call center en español con
+anotaciones de expertos, reportando Precision, Recall y F1-score como métricas de
+aceptación.
+
+% ── D. Justificación resumida ─────────────────────────────────────────────────
+\subsection{Justificación Resumida}
+\label{sec:intro_justificacion}
+
+El estudio se justifica por la convergencia de tres factores: la brecha de cobertura
+industrial ---solo el 31\,\% de los contact centers monitorea activamente las emociones
+del cliente \cite{zoom2025}---, la madurez tecnológica del SER ---con precisiones del
+75--85\,\% en habla espontánea \cite{abdelhamid2022, wagner2023} que superan la línea
+de viabilidad industrial--- y el costo humano del problema ---tasas de burnout
+superiores al 63\,\% y rotaciones anuales de hasta el 52\,\% \cite{sqm2023,
+hiringbranch2024}--- que hacen urgente una solución preventiva. La justificación
+completa, incluyendo los beneficios operacionales, de bienestar laboral y académicos,
+se presenta en la sección Justificación.
+
+% ── E. Alcance ────────────────────────────────────────────────────────────────
+\subsection{Alcance}
+\label{sec:intro_alcance}
+
+El sistema desarrollado en este proyecto \textbf{cubre}:
+\begin{itemize}
+    \item Llamadas telefónicas de call center en \textbf{español (Colombia)}.
+    \item Dos canales de audio separados mediante diarización automática: agente y
+          cliente.
+    \item Detección de \textbf{picos de alta activación emocional}, definidos como
+          desviaciones estadísticas significativas respecto a la línea base individual
+          del hablante.
+    \item \textbf{Clasificación binaria de valencia}: positiva (alegría, entusiasmo,
+          satisfacción) o negativa (ira, frustración, ansiedad).
+\end{itemize}
+
+El sistema \textbf{no cubre}:
+\begin{itemize}
+    \item Clasificación de emociones específicas (ira, miedo, alegría, tristeza, etc.);
+          solo se distingue positivo de negativo.
+    \item Análisis multimodal: no se usa video, texto transcrito ni señales
+          biométricas adicionales.
+    \item Operación en tiempo real durante la llamada activa; el sistema es de análisis
+          post-llamada (\textit{post-call analytics}).
+    \item Análisis de la respuesta del agente ante el pico detectado.
+    \item Generalización a dominios distintos del call center ni a idiomas distintos
+          del español.
+\end{itemize}
+
+% ── F. Limitaciones ───────────────────────────────────────────────────────────
+\subsection{Limitaciones}
+\label{sec:intro_limitaciones}
+
+Se reconocen de antemano las siguientes limitaciones del estudio:
+
+\begin{itemize}
+    \item \textbf{Calidad de audio:} las llamadas telefónicas se digitalizan a 8~kHz
+          con códecs de compresión con pérdida, lo que reduce la resolución espectral
+          disponible para la extracción de features de alta frecuencia.
+    \item \textbf{Disponibilidad de corpus anotados en español:} los corpus de SER
+          de referencia (RAVDESS, IEMOCAP) están en inglés y con habla actuada; el
+          corpus de evaluación propio será de tamaño limitado (mínimo 30 llamadas).
+    \item \textbf{Hardware:} el Dell Optiplex 9020 disponible restringe el uso de
+          modelos de aprendizaje profundo de gran escala; la elección de métodos
+          clásicos es en parte una adaptación a esta restricción.
+    \item \textbf{Ventana temporal:} el proyecto se desarrolla en 15 semanas de
+          práctica profesional, lo que limita la escala de los experimentos y la
+          cantidad de iteraciones de ajuste.
+    \item \textbf{Generalización fuera del dominio:} los resultados de rendimiento
+          serán válidos para el dominio de call center en español colombiano; su
+          transferibilidad a otros idiomas, acentos o sectores no está garantizada
+          y no se evalúa en este trabajo.
+\end{itemize}
+
+% ── G. Estructura del documento ───────────────────────────────────────────────
+\subsection{Estructura del Documento}
+\label{sec:intro_estructura}
+
+El resto del documento se organiza de la siguiente manera. La sección Referente
+Teórico presenta los fundamentos del reconocimiento emocional en voz, las teorías
+de las emociones, el modelo fuente-filtro, las características paralingüísticas
+relevantes y la revisión de antecedentes. La sección Cronograma de Objetivos y la
+sección Cronograma de Trabajo detallan las actividades y fases de implementación del
+proyecto. La sección Metodología describe el diseño experimental, la población y
+muestra, las herramientas, el procedimiento y el plan de validación con anotaciones
+de expertos. La sección Resultados Esperados establece las métricas de aceptación y
+los entregables técnicos. Finalmente, la sección Área Problemática profundiza en las
+causas y consecuencias del problema, y la sección Justificación detalla los beneficios
+esperados del estudio.

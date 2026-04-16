@@ -1,0 +1,32 @@
+\section{Cronograma de Objetivos}
+
+La Tabla~\ref{tab:cronograma} presenta el cronograma de actividades y entregas,
+organizado por semana, durante las 15 semanas del proyecto.
+
+\begin{table}[!t]
+\renewcommand{\arraystretch}{1.3}
+\caption{Cronograma de Objetivos por Semana}
+\label{tab:cronograma}
+\centering
+\begin{tabular}{c c p{5cm}}
+\toprule
+\textbf{Semana} & \textbf{Entrega} & \textbf{Objetivos} \\
+\midrule
+1  & 0      & Configurar entorno de desarrollo. Instalar y probar herramientas de extracción de audio. Descargar dataset inicial. Completar documento 0. \\
+2  &        & Implementar script básico de extracción de características acústicas. Crear función de segmentación de audio en ventanas temporales. Probar extracción en 3--5 llamadas de muestra. \\
+3  & 1      & Implementar cálculo de Jitter y Shimmer. Crear pipeline completo de preprocesamiento. Desarrollar módulo de visualización de características. Finalizar documento 1. Definir resultados esperados concretos. \\
+4  & 2      & Implementar función de cálculo de base emocional individual. Crear sistema de anotación temporal. Redactar sección de antecedentes. Aplicar formato IEEE a todas las referencias. Integrar revisión bibliográfica (12+ citas recientes). \\
+5  &        & Implementar detector de anomalías usando Z-scores sobre baseline. Desarrollar algoritmos de detección con ventanas deslizantes. Crear función de suavizado de señales para reducir falsos positivos. Expandir el marco teórico. \\
+6  & 3      & Implementar clasificador binario para valencia emocional. Entrenar modelo inicial con dataset público. Implementar validación cruzada. Redactar Área Problemática completa. \\
+7  & 4      & Optimizar hiperparámetros del clasificador. Implementar Isolation Forest como método alternativo. Crear pipeline completo. Desarrollar sistema de etiquetado temporal de picos. Redactar Metodología con diagramas. \\
+8  &        & Conseguir llamadas reales de call center. Implementar módulo de separación de canales. Crear sistema de exportación de timestamps de picos detectados. \\
+9  & 5      & Realizar experimentos con llamadas reales. Ajustar umbrales de detección según feedback inicial. Redactar Referente teórico completo. \\
+10 &        & Ejecutar batería completa de pruebas con dataset final. Generar todos los resultados experimentales. Crear gráficos y tablas de resultados. Comenzar redacción de sección Resultados. \\
+11 & 6      & Optimizar código final y limpieza. Documentar código. Preparar demos y ejemplos de uso del sistema. \\
+12 &        & Realizar pruebas finales de validación. Corregir bugs. Generar análisis comparativo. Completar sección de Resultados. \\
+13 &        & Finalizar toda la implementación. Redactar conclusiones y recomendaciones. \\
+14 & Final  & Verificar que todos los experimentos sean reproducibles. Preparar anexos técnicos. Consolidar documento completo. Aplicar formato oficial. Verificar todas las referencias IEEE. \\
+15 &        & Preparar demos en vivo del sistema. Preparar respuestas a preguntas técnicas. Crear presentación. Preparar respaldo por si falla demo en vivo. \\
+\bottomrule
+\end{tabular}
+\end{table}

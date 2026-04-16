@@ -1,0 +1,72 @@
+\section{Justificación}
+
+\subsection{Importancia y Necesidad del Estudio}
+
+La justificación se basa en tres factores que constituyen un solo argumento. Primero,
+la brecha en la cobertura de monitoreo emocional en la industria es crítica y
+cuantificable: solo el 31\,\% de los contact centers monitorea activamente las
+emociones del cliente \cite{zoom2025}, lo que evidencia una necesidad concreta de
+herramientas automáticas que amplíen sin incrementar los costos operativos. Segundo,
+la tecnología SER ha alcanzado suficiente madurez en condiciones reales: precisiones
+del 75--85\,\% en habla espontánea \cite{abdelhamid2022, wagner2023}, superando la
+línea de viabilidad para aplicaciones industriales. Tercero, el costo humano del
+problema, con tasas de burnout superiores al 63\,\% \cite{sqm2023} y rotaciones
+anuales entre el 38\,\% y el 52\,\% \cite{hiringbranch2024}, justifica la inversión en
+soluciones preventivas desde una perspectiva ética y económica.
+
+El estudio es, además, necesario porque aborda una limitación de los enfoques
+existentes: la dependencia del análisis de texto. Los sistemas de análisis de
+sentimiento textual, ampliamente desplegados en la industria, son insensibles a las
+señales paralingüísticas que revelan estados emocionales encubiertos. Jha et al.
+(2022) demuestran que la combinación de características prosódicas y espectrales
+supera consistentemente a los enfoques puramente léxicos en escenarios de habla
+natural \cite{jha2022}.
+
+\subsection{Beneficios Esperados e Impacto}
+
+En el ámbito \textbf{operacional y económico}, la automatización de la detección de
+picos emocionales permitirá a los supervisores focalizar su atención en el subconjunto
+de llamadas con escalamiento real, lo que multiplicará la cobertura efectiva de
+monitoreo sin aumentar el personal. Si el sistema alcanza las métricas propuestas
+—precisión $\geq 75$\,\%, recall $\geq 70$\,\%— podrá identificar automáticamente los
+momentos críticos en el 100\,\% de las llamadas procesadas, en contraste con el
+1--5\,\% que hoy es posible revisar manualmente. Esto representa una mejora de al
+menos $\times 20$ en la cobertura de la evaluación de la calidad.
+
+En el ámbito del \textbf{bienestar laboral}, la detección temprana de picos
+emocionales habilitará intervenciones supervisoras oportunas que pueden interrumpir la
+escalada antes de que el agente alcance el umbral de agotamiento emocional. La
+literatura señala que el acceso a la retroalimentación inmediata y al apoyo del
+supervisor durante interacciones difíciles es uno de los factores protectores más
+eficaces contra el burnout \cite{sqm2023}.
+
+En el ámbito \textbf{académico y tecnológico}, el proyecto genera contribuciones en
+tres frentes: (a) comparación empírica de tres métodos de cálculo de línea base
+emocional individual sobre llamadas reales en español, dominio subrepresentado en la
+literatura \cite{jha2022, delope2023}; (b) evaluación comparativa de algoritmos de
+detección de anomalías (Z-scores, Isolation Forest, One-Class SVM) aplicados a
+features paralingüísticas en conversaciones espontáneas de call center; y (c) un
+pipeline reproducible y documentado que puede ser adoptado y extendido por otros
+investigadores o desplegado directamente en entornos industriales.
+
+\subsection{Pertinencia con el Conocimiento Actual y los Objetivos}
+
+Esta investigación se inserta en una tendencia clara en el campo del procesamiento de
+habla: el desplazamiento desde modelos entrenados en datos actuados hacia sistemas
+capaces de operar sobre habla espontánea en dominios reales. Feng y Devillers (2023)
+identifican precisamente los call centers de atención al cliente como uno de los
+entornos más demandantes y menos atendidos por la literatura de SER en condiciones
+reales \cite{feng2023}. Wagner et al. (2023) señalan el cierre de la brecha de
+valencia como el desafío central del campo \cite{wagner2023} y De Lope y Graña (2023)
+confirman que la generalización a dominios espontáneos sigue siendo el reto abierto
+más relevante \cite{delope2023}.
+
+La justificación se articula directamente con los cinco objetivos específicos. El
+Objetivo~1 (extracción de características acústicas) responde a la necesidad de
+capturar las señales que el análisis de texto omite. El Objetivo~2 (evaluación de
+métodos de línea base) aborda la causa metodológica del problema. El Objetivo~3
+(detección de anomalías) provee el mecanismo central de identificación de picos. El
+Objetivo~4 (clasificación de valencia) añade información sobre la naturaleza del
+pico, habilitando intervenciones diferenciadas. El Objetivo~5 (validación con llamadas
+reales) asegura que los resultados sean relevantes en el dominio específico de interés,
+no solo en benchmarks de laboratorio.

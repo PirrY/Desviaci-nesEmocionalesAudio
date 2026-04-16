@@ -1,0 +1,243 @@
+\section{Metodología}
+\label{sec:metodologia}
+
+\subsection{Tipo y Enfoque del Estudio}
+\label{sec:met_tipo}
+
+Esta investigación es de tipo \textbf{aplicada} y de enfoque \textbf{cuantitativo}, con
+un diseño experimental comparativo. El paradigma subyacente es empírico-positivista y
+el razonamiento sigue un esquema hipotético-deductivo: a partir del cuerpo teórico sobre
+reconocimiento de emociones en voz se formulan hipótesis medibles, cuya corroboración
+se sustenta en la cuantificación de métricas objetivas de rendimiento.
+
+El alcance del estudio es \textbf{descriptivo-comparativo}: no solo se describe el
+comportamiento individual de cada técnica, sino que se contrasta sistemáticamente el
+rendimiento de tres métodos de \textit{baseline} cruzados con cuatro algoritmos de
+detección, lo que genera un diseño factorial $3 \times 4$ sobre los mismos datos de
+evaluación.
+
+\subsection{Diseño Experimental}
+\label{sec:met_diseno}
+
+\subsubsection{Variables independientes}
+
+\begin{itemize}
+    \item \textbf{Método de \textit{baseline} individual} $\in$ \{inicio (primeros
+          2--5~min de llamada), mediana global, ventana deslizante adaptativa\}.
+    \item \textbf{Algoritmo de detección de anomalías} $\in$ \{Z-score estadístico,
+          Isolation Forest, One-Class SVM, Random Forest\}.
+\end{itemize}
+
+\subsubsection{Variables dependientes}
+
+Precision, Recall, F1-score y Accuracy, calculadas para la tarea de detección de picos
+emocionales (clase positiva: pico; clase negativa: segmento neutro) y para la
+clasificación de valencia emocional (positiva/negativa).
+
+\subsubsection{Control experimental}
+
+Se emplea validación cruzada estratificada con $k = 5$ particiones para todas las
+combinaciones del diseño factorial, garantizando que la distribución de clases se
+mantenga en cada fold. Adicionalmente, los resultados se contrastan con anotaciones
+de expertos humanos como referencia externa independiente.
+
+\subsubsection{Hipótesis de trabajo}
+
+La combinación \textit{baseline} adaptativa con ventana deslizante + Isolation Forest
+produce el mayor F1-score en la detección de picos emocionales sobre el corpus de
+llamadas reales, superando estadísticamente a los métodos con \textit{baseline} fija
+($\alpha = 0{,}05$, prueba de Wilcoxon de rangos con signo \cite{wilcoxon1945}).
+
+\subsection{Población y Muestra}
+\label{sec:met_poblacion}
+
+\subsubsection{Datasets}
+
+\textbf{Entrenamiento y calibración:} Se utiliza RAVDESS (\textit{Ryerson Audio-Visual
+Database of Emotional Speech and Song}), corpus actuado con 24 actores profesionales
+(12 hombres, 12 mujeres) que cubre 8 categorías emocionales. Aunque el habla actuada
+difiere de la espontánea, RAVDESS ofrece etiquetado de referencia limpio para calibrar
+los algoritmos antes de exponerlos al corpus real \cite{abdelhamid2022}.
+
+\textbf{Evaluación y validación:} Corpus propio de llamadas reales de call center en
+español (Colombia). Se establece como objetivo mínimo un corpus de 30 llamadas (no
+menos de 5 minutos cada una), lo que representa aproximadamente 150 minutos de audio
+anotado. Los criterios de inclusión son: (a) calidad de audio aceptable (SNR $\geq
+15$~dB), (b) duración mínima de 5~minutos, (c) presencia de ambos interlocutores
+(agente y cliente), y (d) disponibilidad de consentimiento para uso en investigación.
+Los criterios de exclusión son: (a) ruido excesivo o degradación del códec, (b)
+interrupciones técnicas superiores a 30~segundos, y (c) llamadas en las que uno de los
+interlocutores no habla en español estándar colombiano.
+
+\subsubsection{Proceso de anotación}
+
+La anotación será realizada por mínimo dos expertos independientes (psicólogos o
+fonoaudiólogos con experiencia en análisis emocional). Cada experto escuchará la
+llamada completa y marcará los \textit{timestamps} de inicio y fin de cada pico
+emocional, junto con la etiqueta de valencia (positiva o negativa). El acuerdo
+inter-anotador se cuantificará con el coeficiente kappa de Cohen \cite{cohen1960kappa};
+se aceptarán como anotaciones definitivas únicamente los segmentos con $\kappa \geq
+0{,}7$, umbral considerado como acuerdo sustancial en la literatura \cite{cohen1960kappa}.
+Los desacuerdos se resolverán mediante consenso supervisado.
+
+\subsection{Herramientas e Instrumentos}
+\label{sec:met_herramientas}
+
+\subsubsection{Hardware}
+
+Procesador Intel Core i7-4770 (Dell Optiplex 9020), 16~GB RAM, sistema operativo
+Linux. Las restricciones de cómputo justifican la elección de métodos \textit{feature-based}
+clásicos frente a modelos de aprendizaje profundo de gran escala.
+
+\subsubsection{Software}
+
+\begin{itemize}
+    \item \textbf{Python 3.8+}: lenguaje principal de implementación.
+    \item \textbf{Librosa}: extracción de F0, intensidad, MFCCs, tasa de habla.
+    \item \textbf{Parselmouth}: bindings Python de Praat para el cálculo de jitter
+          y shimmer.
+    \item \textbf{OpenSMILE + eGeMAPS}: conjunto de 88 parámetros acústicos
+          minimizados validados para investigación en voz y computación afectiva
+          \cite{eyben2016gemaps}.
+    \item \textbf{pyannote.audio}: diarización de hablantes para separar los canales
+          de agente y cliente.
+    \item \textbf{scikit-learn}: implementación de Isolation Forest, One-Class SVM,
+          Random Forest, validación cruzada estratificada y métricas de evaluación.
+    \item \textbf{NumPy, Pandas, Matplotlib}: manipulación de datos y visualización
+          de resultados.
+\end{itemize}
+
+El control de versiones se gestiona con Git; el repositorio público del proyecto está
+disponible en \url{https://github.com/PirrY/Desviaci-nesEmocionalesAudio}.
+
+\subsection{Procedimiento}
+\label{sec:met_procedimiento}
+
+El sistema sigue un pipeline secuencial de seis etapas, alineadas con las seis fases
+del cronograma de trabajo (véase la Tabla~\ref{tab:cronograma}). La
+Figura~\ref{fig:pipeline} ilustra el flujo de datos.
+
+\begin{figure*}[!t]
+\centering
+\begin{tikzpicture}[
+    node distance=0.45cm and 0.35cm,
+    box/.style={
+        rectangle, draw=black, rounded corners=3pt,
+        minimum height=1.0cm, text width=1.95cm,
+        align=center, font=\scriptsize, fill=white
+    },
+    arrow/.style={-{Stealth[length=4pt]}, thick}
+]
+  \node[box] (audio)  {Audio\\crudo};
+  \node[box, right=of audio]  (prep)  {Prepro-\\cesamiento};
+  \node[box, right=of prep]   (feat)  {Extracción\\de \textit{features}};
+  \node[box, right=of feat]   (base)  {Cálculo de\\\textit{baseline}};
+  \node[box, right=of base]   (det)   {Detector\\de picos};
+  \node[box, right=of det]    (val)   {Clasificador\\de valencia};
+  \node[box, right=of val]    (out)   {Salida\\(timestamps)};
+
+  \draw[arrow] (audio) -- (prep);
+  \draw[arrow] (prep)  -- (feat);
+  \draw[arrow] (feat)  -- (base);
+  \draw[arrow] (base)  -- (det);
+  \draw[arrow] (det)   -- (val);
+  \draw[arrow] (val)   -- (out);
+\end{tikzpicture}
+\caption{Pipeline del sistema de detección de picos emocionales. El flujo va desde el
+audio crudo hasta la generación de \textit{timestamps} etiquetados con su valencia.}
+\label{fig:pipeline}
+\end{figure*}
+
+\textbf{Fase 1 — Configuración y extracción de \textit{features} (sem.\ 1--3):}
+Instalación del entorno, descarga de RAVDESS, implementación del módulo de extracción
+acústica (F0, intensidad, jitter, shimmer, MFCCs, tasa de habla).
+
+\textbf{Fase 2 — \textit{Baseline} emocional y preprocesamiento (sem.\ 4--5):}
+Implementación de los tres métodos de \textit{baseline} individual. Diarización de
+hablantes con pyannote.audio para separar los canales de agente y cliente.
+
+\textbf{Fase 3 — Detección de picos emocionales (sem.\ 6--8):}
+Entrenamiento y comparación de los cuatro algoritmos de detección (Z-score, Isolation
+Forest, One-Class SVM, Random Forest) sobre el corpus de calibración.
+
+\textbf{Fase 4 — Clasificación de valencia emocional (sem.\ 9--10):}
+Desarrollo del clasificador binario de valencia. Optimización de hiperparámetros
+mediante búsqueda en cuadrícula (\textit{grid search}).
+
+\textbf{Fase 5 — Validación y experimentación (sem.\ 11--13):}
+Ejecución del sistema completo sobre las llamadas reales anotadas. Análisis comparativo
+del diseño factorial $3 \times 4$.
+
+\textbf{Fase 6 — Documentación e integración final (sem.\ 14--15):}
+Consolidación del código, documentación y preparación del informe final.
+
+\subsection{Técnicas de Análisis}
+\label{sec:met_analisis}
+
+\subsubsection{Métricas de evaluación}
+
+Las métricas primarias son Precision, Recall, F1-score y Accuracy, definidas a partir
+de la matriz de confusión binaria (pico vs.\ no-pico; positivo vs.\ negativo). Se
+generarán curvas ROC y se calculará el área bajo la curva (AUC) para el detector
+binario pico/no-pico, permitiendo evaluar el \textit{trade-off} entre la tasa de
+verdaderos positivos y la de falsos positivos.
+
+\subsubsection{Importancia de características}
+
+Se analizará la importancia de las \textit{features} mediante el atributo
+\texttt{feature\_importances\_} del modelo Random Forest, identificando cuáles
+características acústicas son más discriminativas para la detección de picos y la
+clasificación de valencia.
+
+\subsubsection{Pruebas de significancia}
+
+La comparación estadística entre algoritmos se realizará con la prueba de Wilcoxon de
+rangos con signo \cite{wilcoxon1945} aplicada sobre los F1-scores obtenidos en los
+cinco folds de validación cruzada. Se utilizará un nivel de significancia $\alpha =
+0{,}05$. Esta prueba no paramétrica es adecuada dado que no se puede asumir
+normalidad en la distribución de las métricas con $k = 5$ \cite{wilcoxon1945}.
+
+\subsection{Consideraciones Éticas}
+\label{sec:met_etica}
+
+\begin{itemize}
+    \item \textbf{Anonimización:} antes de su uso en investigación, las grabaciones
+          serán procesadas para eliminar nombres, números de identificación, datos
+          bancarios y cualquier otro dato personal identificable.
+    \item \textbf{Consentimiento informado:} la empresa proveedora de las llamadas
+          otorgará consentimiento escrito para el uso académico de las grabaciones,
+          en cumplimiento de los principios de finalidad y libertad establecidos en
+          la Ley 1581 de 2012 de la República de Colombia \cite{ley1581colombia}.
+    \item \textbf{Almacenamiento seguro:} los archivos de audio originales se
+          almacenarán con cifrado en reposo y acceso restringido.
+    \item \textbf{Habeas Data:} el tratamiento de datos de voz se enmarca en la Ley
+          1581 de 2012 \cite{ley1581colombia}, que regula la protección de datos
+          personales en Colombia.
+    \item \textbf{Conflicto de interés:} el autor declara no tener ningún conflicto
+          de interés con las organizaciones proveedoras de datos.
+\end{itemize}
+
+\subsection{Plan de Validación}
+\label{sec:met_validacion}
+
+\subsubsection{Protocolo de anotación}
+
+Los expertos recibirán una guía de anotación estandarizada que incluye: (a) definición
+operacional de \textit{pico emocional} (incremento sostenido de al menos dos
+características acústicas por encima de $1{,}5\sigma$ respecto al \textit{baseline}
+individual durante un mínimo de 5~segundos); (b) escala de valencia binaria
+(positiva: alegría, entusiasmo, satisfacción; negativa: ira, frustración, ansiedad);
+y (c) procedimiento para marcar \textit{timestamps} en Praat o Audacity.
+
+\subsubsection{Comparación sistema--expertos}
+
+Las detecciones automáticas se compararán con las anotaciones humanas usando una
+tolerancia temporal de $\pm 3$~segundos en los bordes de los segmentos. Un segmento
+detectado por el sistema se considerará verdadero positivo si su centro coincide con
+el de una anotación de experto dentro de dicha tolerancia.
+
+\subsubsection{Criterios de aceptación}
+
+El sistema se considerará exitoso si alcanza, sobre el corpus de llamadas reales
+anotadas, los umbrales definidos en la Sección~\ref{sec:resultados_esperados}:
+Precision $\geq 75$\,\%, Recall $\geq 70$\,\%, F1-score $\geq 72$\,\%.
